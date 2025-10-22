@@ -1,10 +1,7 @@
 [build]
-  command = "bash ./install_flutter.sh && flutter build web --release"
+  command = "bash ./install_flutter.sh && /opt/buildhome/flutter/bin/flutter build web --release"
   publish = "build/web"
 
 [build.environment]
-  FLUTTER_VERSION = "3.24.3"
-
-
-[build.lifecycle]
-  onBuild = "bash ./install_flutter.sh"
+  FLUTTER_HOME = "/opt/buildhome/flutter"
+  PATH = "/opt/buildhome/flutter/bin:/opt/buildhome/flutter/bin/cache/dart-sdk/bin:/usr/local/bin:/usr/bin:/bin"
