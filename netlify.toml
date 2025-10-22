@@ -1,12 +1,9 @@
 [build]
   command = "bash install_flutter.sh && /opt/buildhome/flutter/bin/flutter build web --release"
   publish = "build/web"
-  base = "."
 
 [build.environment]
   NETLIFY_SKIP_INSTALL = "true"
   NODE_VERSION = "18"
-  BUNDLER_VERSION = "0"
-  GEM_HOME = "/dev/null"
   FLUTTER_HOME = "/opt/buildhome/flutter"
   PATH = "/opt/buildhome/flutter/bin:/opt/buildhome/flutter/bin/cache/dart-sdk/bin:/usr/local/bin:/usr/bin:/bin"
