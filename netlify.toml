@@ -1,6 +1,7 @@
 [build]
   command = "bash install_flutter.sh && /opt/buildhome/flutter/bin/flutter build web --release"
   publish = "build/web"
+  base = "."
 
 [build.environment]
   NETLIFY_SKIP_INSTALL = "true"
