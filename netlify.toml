@@ -1,11 +1,9 @@
 [build]
   publish = "build/web"
-  command = "chmod +x install_flutter.sh && ./install_flutter.sh"
+  command = "echo 'Skipping default command'"
 
 [build.environment]
-  # Completely skip Netlify's dependency installation
   NETLIFY_SKIP_INSTALL = "true"
-  
-  # Flutter configuration
-  FLUTTER_HOME = "/opt/buildhome/flutter"
-  PATH = "/opt/buildhome/flutter/bin:/opt/buildhome/flutter/bin/cache/dart-sdk/bin:$PATH"
+
+[[plugins]]
+  package = "@netlify/plugin-flutter-build"
