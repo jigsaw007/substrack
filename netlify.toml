@@ -5,6 +5,5 @@
 
 [build.environment]
   NETLIFY_SKIP_INSTALL = "true"
-  NODE_VERSION = "18"
   FLUTTER_HOME = "/opt/buildhome/flutter"
   PATH = "/opt/buildhome/flutter/bin:/opt/buildhome/flutter/bin/cache/dart-sdk/bin:/usr/local/bin:/usr/bin:/bin"
