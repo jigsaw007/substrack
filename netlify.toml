@@ -1,14 +1,20 @@
 [build]
+  # ✅ Install Flutter manually, then build web release
   command = "bash install_flutter.sh && /opt/buildhome/flutter/bin/flutter build web --release"
   publish = "build/web"
   base = "."
 
 [build.environment]
+  # ✅ Prevent Netlify from running npm/yarn/pip/bundler install
   NETLIFY_SKIP_INSTALL = "true"
+
+  # ✅ Optional: specify Node version just to avoid errors
   NODE_VERSION = "18"
-  NPM_FLAGS = "--version"
-  NETLIFY_USE_YARN = "false"
+
+  # ✅ Disable Ruby/Bundler auto-detection
   BUNDLER_VERSION = "0"
   GEM_HOME = "/dev/null"
+
+  # ✅ Flutter path setup
   FLUTTER_HOME = "/opt/buildhome/flutter"
   PATH = "/opt/buildhome/flutter/bin:/opt/buildhome/flutter/bin/cache/dart-sdk/bin:/usr/local/bin:/usr/bin:/bin"
