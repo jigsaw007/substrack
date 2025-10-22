@@ -1,9 +1,6 @@
 [build]
   publish = "build/web"
-  command = "echo 'Skipping default command'"
+  command = "chmod +x install_flutter.sh && ./install_flutter.sh"
 
 [build.environment]
   NETLIFY_SKIP_INSTALL = "true"
-
-[[plugins]]
-  package = "@netlify/plugin-flutter-build"
