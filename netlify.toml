@@ -1,10 +1,13 @@
 [build]
   command = "bash ./install_flutter.sh && /opt/buildhome/flutter/bin/flutter build web --release"
   publish = "build/web"
+  base = "."
 
-# ✅ Prevent Netlify from running `npm install`
+# ✅ Completely disable default npm/yarn install step
 [build.environment]
   NPM_FLAGS = "--version"
   NODE_VERSION = "18"
+  NETLIFY_USE_YARN = "false"
+  NETLIFY_SKIP_INSTALL = "true"
   FLUTTER_HOME = "/opt/buildhome/flutter"
   PATH = "/opt/buildhome/flutter/bin:/opt/buildhome/flutter/bin/cache/dart-sdk/bin:/usr/local/bin:/usr/bin:/bin"
