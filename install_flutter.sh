@@ -1,33 +1,33 @@
 #!/bin/bash
 set -e
 
-echo "🚀 Setting up build environment..."
+echo "🚀 Setting up Flutter build (Noble-compatible)..."
 
-# Install system dependencies (skip sudo — Netlify build containers already run as root)
-apt-get update && apt-get install -y \
-  bash curl git unzip xz-utils libglu1-mesa clang cmake ninja-build
+# Define Flutter directory
+export FLUTTER_HOME=/opt/buildhome/flutter
+export PATH="$FLUTTER_HOME/bin:$FLUTTER_HOME/bin/cache/dart-sdk/bin:$PATH"
 
-echo "🚀 Installing Flutter into /opt/buildhome/flutter..."
-
-# Install Flutter if missing
-if [ ! -d "/opt/buildhome/flutter" ]; then
-  echo "Cloning Flutter stable branch..."
-  git clone https://github.com/flutter/flutter.git -b stable /opt/buildhome/flutter
+# If Flutter not already cached, clone it
+if [ ! -d "$FLUTTER_HOME" ]; then
+  echo "📦 Cloning Flutter stable branch..."
+  git clone https://github.com/flutter/flutter.git -b stable "$FLUTTER_HOME"
 else
-  echo "Flutter already exists, updating..."
-  /opt/buildhome/flutter/bin/flutter upgrade
+  echo "🔁 Flutter already exists, updating..."
+  cd "$FLUTTER_HOME"
+  git fetch
+  git pull
 fi
 
-# Add Flutter to PATH
-export PATH="/opt/buildhome/flutter/bin:$PATH"
-echo "PATH set to: $PATH"
+# Verify Flutter install
+flutter --version || $FLUTTER_HOME/bin/flutter --version
 
-# Verify installation
-/opt/buildhome/flutter/bin/flutter --version
-/opt/buildhome/flutter/bin/flutter doctor || echo "⚠️ Flutter doctor warnings ignored"
-
-# Get dependencies
+# Go back to repo root
 cd /opt/build/repo
-/opt/buildhome/flutter/bin/flutter pub get
 
-echo "✅ Flutter setup complete!"
+echo "📥 Fetching dependencies..."
+$FLUTTER_HOME/bin/flutter pub get
+
+echo "🏗️ Building web release..."
+$FLUTTER_HOME/bin/flutter build web --release
+
+echo "✅ Flutter web build completed successfully!"
