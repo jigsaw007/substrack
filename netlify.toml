@@ -2,9 +2,9 @@
   command = "bash ./install_flutter.sh && /opt/buildhome/flutter/bin/flutter build web --release"
   publish = "build/web"
 
-# prevent Netlify from trying npm install
+# ✅ Prevent Netlify from running `npm install`
 [build.environment]
-  NPM_FLAGS = "--version" 
+  NPM_FLAGS = "--version"
   NODE_VERSION = "18"
   FLUTTER_HOME = "/opt/buildhome/flutter"
   PATH = "/opt/buildhome/flutter/bin:/opt/buildhome/flutter/bin/cache/dart-sdk/bin:/usr/local/bin:/usr/bin:/bin"
