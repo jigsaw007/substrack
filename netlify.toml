@@ -1,6 +1,12 @@
 [build]
-  publish = "build/web"
+  publish = "."
   command = "chmod +x install_flutter.sh && ./install_flutter.sh"
 
 [build.environment]
   NETLIFY_SKIP_INSTALL = "true"
+
+# Redirects: Let Netlify handle Flutter’s internal routing under /app
+[[redirects]]
+  from = "/app/*"
+  to = "/app/index.html"
+  status = 200
