@@ -3,11 +3,14 @@
   publish = "build/web"
   base = "."
 
-# ✅ Completely disable default npm/yarn install step
 [build.environment]
+  # ✅ Stop Netlify from trying to install anything (Node, Yarn, Ruby, etc.)
+  NETLIFY_SKIP_INSTALL = "true"
   NPM_FLAGS = "--version"
   NODE_VERSION = "18"
   NETLIFY_USE_YARN = "false"
-  NETLIFY_SKIP_INSTALL = "true"
+  BUNDLE_BIN = "false"
+  GEM_HOME = "/dev/null"
+  BUNDLER_VERSION = "0"
   FLUTTER_HOME = "/opt/buildhome/flutter"
   PATH = "/opt/buildhome/flutter/bin:/opt/buildhome/flutter/bin/cache/dart-sdk/bin:/usr/local/bin:/usr/bin:/bin"
