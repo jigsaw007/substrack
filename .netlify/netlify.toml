@@ -1,0 +1,30 @@
+functionsDirectory = "D:\\Personal\\Projects\\tracker\\subtrack\\backend\\functions"
+functionsDirectoryOrigin = "ui"
+plugins = []
+headers = []
+redirects = []
+
+[functions]
+
+[functions."*"]
+
+[build]
+publish = "D:\\Personal\\Projects\\tracker\\subtrack\\fplnepal-dashboard\\build"
+publishOrigin = "ui"
+commandOrigin = "ui"
+command = "npm run build"
+functions = "D:\\Personal\\Projects\\tracker\\subtrack\\backend\\functions"
+
+[build.environment]
+
+[build.processing]
+
+[build.processing.css]
+
+[build.processing.html]
+
+[build.processing.images]
+
+[build.processing.js]
+
+[build.services]
