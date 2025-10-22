@@ -4,7 +4,6 @@
   base = "."
 
 [build.environment]
-  # ✅ Completely disable all dependency installations (npm, yarn, bundler, etc.)
   NETLIFY_SKIP_INSTALL = "true"
   NODE_VERSION = "18"
   NPM_FLAGS = "--version"
