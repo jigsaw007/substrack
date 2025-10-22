@@ -1,16 +1,18 @@
 [build]
-  command = "bash install_flutter.sh"
   publish = "build/web"
-  ignore = "exit 0" # ensures deploy always runs
+  command = "bash install_flutter.sh"
 
 [build.environment]
-  # 🚫 Disable automatic dependency install
+  # Disable all automatic dependency installation
   NETLIFY_USE_YARN = "false"
-  NETLIFY_USE_NPM = "false"
+  NETLIFY_USE_NPM = "false" 
   NETLIFY_USE_BUNDLER = "false"
-  NETLIFY_SKIP_INSTALL = "true"
-  NETLIFY_DISABLE_GEM_BUNDLER = "true"
+  NPM_FLAGS = "--version"  # Fake command to skip npm install
+  YARN_FLAGS = "--version" # Fake command to skip yarn install
   
-  # 🚀 Flutter config
+  # Flutter configuration
   FLUTTER_HOME = "/opt/buildhome/flutter"
   PATH = "/opt/buildhome/flutter/bin:/opt/buildhome/flutter/bin/cache/dart-sdk/bin:/usr/local/bin:/usr/bin:/bin"
+
+[[plugins]]
+  package = "@netlify/plugin-sitemap"
