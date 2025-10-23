@@ -17,7 +17,7 @@ echo "📥 Installing dependencies..."
 flutter pub get
 
 echo "🏗️ Building Flutter web app..."
-flutter build web --release
+flutter build web --release --base-href /app/
 
 
 # ✅ Move built files into the /app directory
