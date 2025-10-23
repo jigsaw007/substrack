@@ -17,7 +17,8 @@ echo "📥 Installing dependencies..."
 flutter pub get
 
 echo "🏗️ Building Flutter web app..."
-flutter build web --release --web-renderer canvaskit
+flutter build web --release
+
 
 # ✅ Move built files into the /app directory
 rm -rf app
