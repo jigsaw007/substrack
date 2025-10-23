@@ -2,52 +2,58 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class AuthScreen extends StatefulWidget {
-  const AuthScreen({Key? key}) : super(key: key);
+class SignupScreen extends StatefulWidget {
+  const SignupScreen({Key? key}) : super(key: key);
 
   @override
-  State<AuthScreen> createState() => _AuthScreenState();
+  State<SignupScreen> createState() => _SignupScreenState();
 }
 
-class _AuthScreenState extends State<AuthScreen> {
+class _SignupScreenState extends State<SignupScreen> {
   final supabase = Supabase.instance.client;
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
   bool isLoading = false;
   String message = '';
 
-  Future<void> _signIn() async {
-    setState(() => isLoading = true);
+  Future<void> _signUp() async {
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+    final confirm = confirmPasswordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty || confirm.isEmpty) {
+      setState(() => message = "Please fill in all fields.");
+      return;
+    }
+    if (password != confirm) {
+      setState(() => message = "Passwords do not match.");
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+      message = '';
+    });
+
     try {
-      final response = await supabase.auth.signInWithPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
+      final response = await supabase.auth.signUp(
+        email: email,
+        password: password,
       );
+
       if (response.user != null) {
-        Navigator.pushReplacementNamed(context, '/home');
+        setState(() => message =
+            "🎉 Account created! Check your email to verify your account.");
+      } else {
+        setState(() => message = "Sign-up failed. Try again later.");
       }
     } on AuthException catch (e) {
       setState(() => message = e.message);
     } catch (e) {
-      setState(() => message = 'Something went wrong. Please try again.');
+      setState(() => message = "Something went wrong. Please try again.");
     } finally {
       setState(() => isLoading = false);
-    }
-  }
-
-  Future<void> _resetPassword() async {
-    final email = emailController.text.trim();
-    if (email.isEmpty) {
-      setState(() => message = "Enter your email to reset password.");
-      return;
-    }
-
-    try {
-      await supabase.auth.resetPasswordForEmail(email);
-      setState(() => message =
-          "Password reset email sent! Check your inbox or spam folder.");
-    } catch (e) {
-      setState(() => message = "Failed to send reset email. Try again.");
     }
   }
 
@@ -61,7 +67,7 @@ class _AuthScreenState extends State<AuthScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // 🌈 App logo / brand name
+              // 🌈 Brand / Logo
               Text(
                 'substrackr',
                 style: GoogleFonts.poppins(
@@ -90,13 +96,22 @@ class _AuthScreenState extends State<AuthScreen> {
                 style: const TextStyle(color: Colors.white),
                 decoration: _inputDecoration("Password"),
               ),
+              const SizedBox(height: 16),
+
+              // 🔐 Confirm password
+              TextField(
+                controller: confirmPasswordController,
+                obscureText: true,
+                style: const TextStyle(color: Colors.white),
+                decoration: _inputDecoration("Confirm Password"),
+              ),
               const SizedBox(height: 24),
 
-              // 🚀 Login button
+              // 🚀 Signup Button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: isLoading ? null : _signIn,
+                  onPressed: isLoading ? null : _signUp,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
@@ -106,7 +121,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   child: isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
                       : const Text(
-                          "Login",
+                          "Sign Up",
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -115,40 +130,28 @@ class _AuthScreenState extends State<AuthScreen> {
                         ),
                 ),
               ),
-              const SizedBox(height: 12),
-
-              // Forgot password link
-              TextButton(
-                onPressed: _resetPassword,
-                child: const Text(
-                  "Forgot password?",
-                  style: TextStyle(color: Color(0xFF38BDF8)),
-                ),
-              ),
-
               const SizedBox(height: 20),
 
-              // Message area (errors or info)
+              // 🧠 Message (error/success)
               if (message.isNotEmpty)
                 Text(
                   message,
                   style: const TextStyle(color: Colors.redAccent, fontSize: 14),
                   textAlign: TextAlign.center,
                 ),
+              const SizedBox(height: 30),
 
-              const SizedBox(height: 40),
-
-              // 👤 Sign-up text
+              // 🔁 Back to login
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text("Don’t have an account?",
+                  const Text("Already have an account?",
                       style: TextStyle(color: Colors.white70)),
                   TextButton(
                     onPressed: () =>
-                        Navigator.pushReplacementNamed(context, '/signup'),
+                        Navigator.pushReplacementNamed(context, '/auth'),
                     child: const Text(
-                      "Sign up",
+                      "Login",
                       style: TextStyle(
                         color: Color(0xFF38BDF8),
                         fontWeight: FontWeight.w600,

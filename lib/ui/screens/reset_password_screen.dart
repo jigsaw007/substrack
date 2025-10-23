@@ -2,52 +2,49 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class AuthScreen extends StatefulWidget {
-  const AuthScreen({Key? key}) : super(key: key);
+class ResetPasswordScreen extends StatefulWidget {
+  const ResetPasswordScreen({Key? key}) : super(key: key);
 
   @override
-  State<AuthScreen> createState() => _AuthScreenState();
+  State<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
 }
 
-class _AuthScreenState extends State<AuthScreen> {
+class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   final supabase = Supabase.instance.client;
-  final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
   bool isLoading = false;
   String message = '';
 
-  Future<void> _signIn() async {
-    setState(() => isLoading = true);
-    try {
-      final response = await supabase.auth.signInWithPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
-      );
-      if (response.user != null) {
-        Navigator.pushReplacementNamed(context, '/home');
-      }
-    } on AuthException catch (e) {
-      setState(() => message = e.message);
-    } catch (e) {
-      setState(() => message = 'Something went wrong. Please try again.');
-    } finally {
-      setState(() => isLoading = false);
-    }
-  }
-
   Future<void> _resetPassword() async {
-    final email = emailController.text.trim();
-    if (email.isEmpty) {
-      setState(() => message = "Enter your email to reset password.");
+    final newPassword = passwordController.text.trim();
+    final confirm = confirmPasswordController.text.trim();
+
+    if (newPassword.isEmpty || confirm.isEmpty) {
+      setState(() => message = "Please fill in both fields.");
+      return;
+    }
+    if (newPassword != confirm) {
+      setState(() => message = "Passwords do not match.");
       return;
     }
 
+    setState(() {
+      isLoading = true;
+      message = '';
+    });
+
     try {
-      await supabase.auth.resetPasswordForEmail(email);
-      setState(() => message =
-          "Password reset email sent! Check your inbox or spam folder.");
+      await supabase.auth.updateUser(UserAttributes(password: newPassword));
+      setState(() => message = "✅ Password updated successfully!");
+      await Future.delayed(const Duration(seconds: 2));
+      Navigator.pushReplacementNamed(context, '/auth');
+    } on AuthException catch (e) {
+      setState(() => message = e.message);
     } catch (e) {
-      setState(() => message = "Failed to send reset email. Try again.");
+      setState(() => message = "Something went wrong. Please try again.");
+    } finally {
+      setState(() => isLoading = false);
     }
   }
 
@@ -61,7 +58,6 @@ class _AuthScreenState extends State<AuthScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // 🌈 App logo / brand name
               Text(
                 'substrackr',
                 style: GoogleFonts.poppins(
@@ -74,29 +70,39 @@ class _AuthScreenState extends State<AuthScreen> {
                 ),
               ),
               const SizedBox(height: 40),
-
-              // 📧 Email
-              TextField(
-                controller: emailController,
-                style: const TextStyle(color: Colors.white),
-                decoration: _inputDecoration("Email"),
+              const Text(
+                "Reset your password",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
 
-              // 🔒 Password
+              // New password
               TextField(
                 controller: passwordController,
                 obscureText: true,
                 style: const TextStyle(color: Colors.white),
-                decoration: _inputDecoration("Password"),
+                decoration: _inputDecoration("New Password"),
+              ),
+              const SizedBox(height: 16),
+
+              // Confirm new password
+              TextField(
+                controller: confirmPasswordController,
+                obscureText: true,
+                style: const TextStyle(color: Colors.white),
+                decoration: _inputDecoration("Confirm New Password"),
               ),
               const SizedBox(height: 24),
 
-              // 🚀 Login button
+              // Update button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: isLoading ? null : _signIn,
+                  onPressed: isLoading ? null : _resetPassword,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
@@ -106,7 +112,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   child: isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
                       : const Text(
-                          "Login",
+                          "Update Password",
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -115,20 +121,8 @@ class _AuthScreenState extends State<AuthScreen> {
                         ),
                 ),
               ),
-              const SizedBox(height: 12),
-
-              // Forgot password link
-              TextButton(
-                onPressed: _resetPassword,
-                child: const Text(
-                  "Forgot password?",
-                  style: TextStyle(color: Color(0xFF38BDF8)),
-                ),
-              ),
-
               const SizedBox(height: 20),
 
-              // Message area (errors or info)
               if (message.isNotEmpty)
                 Text(
                   message,
@@ -136,26 +130,15 @@ class _AuthScreenState extends State<AuthScreen> {
                   textAlign: TextAlign.center,
                 ),
 
-              const SizedBox(height: 40),
+              const SizedBox(height: 30),
 
-              // 👤 Sign-up text
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text("Don’t have an account?",
-                      style: TextStyle(color: Colors.white70)),
-                  TextButton(
-                    onPressed: () =>
-                        Navigator.pushReplacementNamed(context, '/signup'),
-                    child: const Text(
-                      "Sign up",
-                      style: TextStyle(
-                        color: Color(0xFF38BDF8),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  )
-                ],
+              TextButton(
+                onPressed: () =>
+                    Navigator.pushReplacementNamed(context, '/auth'),
+                child: const Text(
+                  "Back to Login",
+                  style: TextStyle(color: Color(0xFF38BDF8)),
+                ),
               ),
             ],
           ),
