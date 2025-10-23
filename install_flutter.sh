@@ -22,7 +22,7 @@ flutter pub get
 # ⚙️ Enable web and build
 flutter config --enable-web
 echo "🏗️ Building Flutter web release (for /app)..."
-flutter build web --release --base-href /app/ --verbose
+flutter build web --release --base-href /app/
 
 # 📁 Copy the build output into /app for Netlify
 echo "📦 Preparing Netlify app folder..."
