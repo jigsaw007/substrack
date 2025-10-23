@@ -5,12 +5,21 @@
 [build.environment]
   NETLIFY_SKIP_INSTALL = "true"
 
+# ✅ Redirect rules for Flutter app under /app/
 [[redirects]]
   from = "/app"
   to = "/app/index.html"
   status = 200
+  force = true
+
+[[redirects]]
+  from = "/app/"
+  to = "/app/index.html"
+  status = 200
+  force = true
 
 [[redirects]]
   from = "/app/*"
   to = "/app/index.html"
   status = 200
+  force = true
