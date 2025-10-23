@@ -3,28 +3,30 @@ set -e
 
 echo "🚀 Starting Flutter build process..."
 
-# Define Flutter home
+# Define Flutter environment
 export FLUTTER_HOME="/opt/buildhome/flutter"
 export PATH="$FLUTTER_HOME/bin:$FLUTTER_HOME/bin/cache/dart-sdk/bin:$PATH"
 
-# Fresh install
+# Clean and install Flutter fresh
 rm -rf "$FLUTTER_HOME"
 git clone https://github.com/flutter/flutter.git -b stable "$FLUTTER_HOME"
 
-echo "🔧 Enabling web support..."
+flutter --version
 flutter config --enable-web
 
-echo "📦 Getting dependencies..."
+echo "📦 Installing dependencies..."
 flutter pub get
 
-echo "🏗️ Building Flutter web app..."
+echo "🏗️ Building Flutter web release..."
 flutter build web --release --base-href /app/
 
-# Move Flutter output to /app folder (for Netlify to serve separately)
-echo "📁 Moving Flutter web build into /app..."
-rm -rf app
-mkdir app
+# Copy Flutter build into /app folder
+echo "📁 Moving Flutter build to /app..."
+mkdir -p app
 cp -r build/web/* app/
 
-echo "✅ Flutter web build completed successfully!"
+# Cleanup to reduce Netlify deploy size
+rm -rf build/
+
+echo "✅ Done! /app folder ready:"
 ls -la app/
