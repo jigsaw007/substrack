@@ -3,173 +3,53 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SubTrack — Smarter Subscription Management</title>
-  <style>
-    :root {
-      --bg-color: #0f172a;
-      --accent: #38bdf8;
-      --text-color: #f1f5f9;
-      --gradient: linear-gradient(120deg, #38bdf8, #818cf8, #a855f7);
-    }
+  <title>substrackr</title>
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
 
-    body {
-      background: var(--bg-color);
-      color: var(--text-color);
-      font-family: "Inter", sans-serif;
-      overflow-x: hidden;
-      min-height: 100vh;
-      position: relative;
-    }
-
-    canvas#particles {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      z-index: 0;
-      pointer-events: none;
-    }
-
-    .animated-bg {
-      position: absolute;
-      top: -50%; left: -50%;
-      width: 200%; height: 200%;
-      background: radial-gradient(circle at 25% 25%, rgba(56,189,248,0.2), transparent 60%),
-                  radial-gradient(circle at 75% 75%, rgba(168,85,247,0.2), transparent 60%),
-                  radial-gradient(circle at 25% 75%, rgba(129,140,248,0.15), transparent 60%),
-                  radial-gradient(circle at 75% 25%, rgba(56,189,248,0.15), transparent 60%);
-      animation: rotate 30s linear infinite;
-      z-index: 0;
-      filter: blur(60px);
-    }
-
-    @keyframes rotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-    .content {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      text-align: center;
-      padding: 0 1rem;
-    }
-
-    h1 {
-      font-size: clamp(2.5rem, 6vw, 5rem);
-      background: var(--gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      font-weight: 800;
-      margin-bottom: 1rem;
-    }
-
-    p {
-      font-size: 1.2rem;
-      color: #cbd5e1;
-      max-width: 600px;
-      margin-bottom: 2rem;
-      opacity: 0;
-      transform: translateY(20px);
-      transition: all 1s ease;
-    }
-
-    p.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    a.launch-btn {
-      background: var(--gradient);
-      color: white;
-      padding: 0.9rem 2rem;
-      border-radius: 50px;
-      font-weight: 600;
-      text-decoration: none;
-      box-shadow: 0 0 20px rgba(56,189,248,0.3);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    a.launch-btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 0 25px rgba(56,189,248,0.5);
-    }
-
-    footer {
-      position: absolute;
-      bottom: 20px;
-      width: 100%;
-      text-align: center;
-      color: #64748b;
-      font-size: 0.9rem;
-    }
-  </style>
+  <!-- Global CSS -->
+  <link rel="stylesheet" href="assets/css/layout.css" />
 </head>
 <body>
+  <!-- Animated Background -->
   <canvas id="particles"></canvas>
   <div class="animated-bg"></div>
 
-  <div class="content">
-    <h1>SubTrack</h1>
-    <p id="intro">Track, visualize, and take control of all your subscriptions — beautifully.</p>
-    <a href="/app" class="launch-btn">🚀 Launch App</a>
+<!-- Navbar -->
+<nav class="nav-wrap">
+  <div class="nav container">
+    <a href="index.html" class="brand">substrackr</a>
+    <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+      <li><a href="#contact">Contact</a></li>
+      <li><a class="btn small" href="/app/">Launch App</a></li>
+    </ul>
   </div>
+</nav>
 
-  <footer>© 2025 SubTrack. All rights reserved.</footer>
 
-  <script>
-    // 🟣 Floating Particles
-    const canvas = document.getElementById("particles");
-    const ctx = canvas.getContext("2d");
-    let particlesArray = [];
-    const colors = ["#38bdf8", "#818cf8", "#a855f7"];
+  <!-- Dynamic Content -->
+  <main id="page-content" class="section container"></main>
 
-    function init() {
-      canvas.width = innerWidth;
-      canvas.height = innerHeight;
-      particlesArray = [];
-      for (let i = 0; i < 60; i++) {
-        particlesArray.push({
-          x: Math.random() * innerWidth,
-          y: Math.random() * innerHeight,
-          size: Math.random() * 3 + 1,
-          color: colors[Math.floor(Math.random() * colors.length)],
-          dx: (Math.random() - 0.5) * 0.8,
-          dy: (Math.random() - 0.5) * 0.8,
-        });
-      }
-    }
+<!-- Footer -->
+<footer class="footer">
+  <div class="container foot">
+    <p>© 2025 substrackr</p>
+    <div class="foot-links">
+      <a href="index.html">Home</a>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="terms.html">Terms & Conditions</a>
+    </div>
+  </div>
+</footer>
 
-    function animate() {
-      ctx.clearRect(0, 0, innerWidth, innerHeight);
-      particlesArray.forEach(p => {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = p.color;
-        ctx.fill();
-
-        p.x += p.dx;
-        p.y += p.dy;
-
-        if (p.x < 0 || p.x > innerWidth) p.dx *= -1;
-        if (p.y < 0 || p.y > innerHeight) p.dy *= -1;
-      });
-      requestAnimationFrame(animate);
-    }
-
-    window.addEventListener("resize", init);
-    init();
-    animate();
-
-    // ✨ Fade-in animation for text
-    window.addEventListener("scroll", () => {
-      const intro = document.getElementById("intro");
-      const pos = intro.getBoundingClientRect().top;
-      if (pos < window.innerHeight - 100) intro.classList.add("visible");
-    });
-  </script>
+  <!-- Scripts -->
+  <script src="assets/js/particles-bg.js"></script>
+  <script src="assets/js/layout.js"></script>
 </body>
 </html>
