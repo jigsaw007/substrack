@@ -15,6 +15,7 @@ class _SignupScreenState extends State<SignupScreen> {
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
   bool isLoading = false;
+  bool showBanner = false;
   String message = '';
 
   Future<void> _signUp() async {
@@ -34,6 +35,7 @@ class _SignupScreenState extends State<SignupScreen> {
     setState(() {
       isLoading = true;
       message = '';
+      showBanner = false;
     });
 
     try {
@@ -43,8 +45,10 @@ class _SignupScreenState extends State<SignupScreen> {
       );
 
       if (response.user != null) {
-        setState(() => message =
-            "🎉 Account created! Check your email to verify your account.");
+        setState(() {
+          showBanner = true;
+          message = '';
+        });
       } else {
         setState(() => message = "Sign-up failed. Try again later.");
       }
@@ -132,7 +136,42 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
               const SizedBox(height: 20),
 
-              // 🧠 Message (error/success)
+              // ✅ Success banner (animated)
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.easeInOut,
+                height: showBanner ? 80 : 0,
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: Colors.green.withOpacity(0.15),
+                  border:
+                      Border.all(color: Colors.greenAccent.withOpacity(0.6)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: showBanner
+                    ? Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.mark_email_read,
+                              color: Colors.greenAccent, size: 28),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              "Account created!\nCheck your email and click the verification link to activate your account.",
+                              style: const TextStyle(
+                                color: Colors.greenAccent,
+                                fontSize: 13.5,
+                                height: 1.4,
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    : null,
+              ),
+
+              // 🧠 Error or info message
               if (message.isNotEmpty)
                 Text(
                   message,
