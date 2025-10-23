@@ -2,6 +2,10 @@
   publish = "."
   command = "chmod +x install_flutter.sh && ./install_flutter.sh"
 
+[build.environment]
+  NETLIFY_SKIP_INSTALL = "true"
+
+# Redirect all app routes to Flutter index
 [[redirects]]
   from = "/app"
   to = "/app/index.html"
