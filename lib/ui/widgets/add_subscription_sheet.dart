@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 import '../../data/models/subscription.dart';
 import '../../state/providers.dart';
+import 'dart:ui'; // For blur effect
 
 class AddSubscriptionSheet extends ConsumerStatefulWidget {
   const AddSubscriptionSheet({super.key});
@@ -82,7 +83,6 @@ class _AddSubscriptionSheetState extends ConsumerState<AddSubscriptionSheet> {
         notes: _notesController.text.trim(),
       );
 
-      // ✅ INSTANTLY update dashboard (optimistic update)
       await ref.read(subscriptionsProvider.notifier).add(newSub);
 
       if (!mounted) return;
@@ -108,147 +108,286 @@ class _AddSubscriptionSheetState extends ConsumerState<AddSubscriptionSheet> {
       context: context,
       initialDate: _selectedDate,
       firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
+      lastDate: DateTime.now().add(const Duration(days: 730)),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Colors.teal,
+              onPrimary: Colors.white,
+              surface: Colors.white,
+              onSurface: Colors.black,
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
     if (picked != null) setState(() => _selectedDate = picked);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-        left: 16,
-        right: 16,
-        top: 24,
-      ),
-      child: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Add Subscription',
-                  style: Theme.of(context).textTheme.titleLarge),
-              const SizedBox(height: 16),
+    final inputBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(14),
+      borderSide: BorderSide(color: Colors.grey.withOpacity(0.3)),
+    );
 
-              // Service name
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Service Name'),
-                validator: (v) =>
-                    v == null || v.isEmpty ? 'Enter service name' : null,
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.65),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.teal.withOpacity(0.15),
+                blurRadius: 20,
+                offset: const Offset(0, -4),
               ),
-              const SizedBox(height: 12),
-
-              // Price
-              TextFormField(
-                controller: _priceController,
-                decoration: const InputDecoration(labelText: 'Price (¥)'),
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                validator: (v) => v == null || v.isEmpty ? 'Enter price' : null,
-              ),
-              const SizedBox(height: 12),
-
-              // Cycle dropdown
-              DropdownButtonFormField<String>(
-                value: _selectedCycle,
-                items: const [
-                  DropdownMenuItem(value: 'Monthly', child: Text('Monthly')),
-                  DropdownMenuItem(value: 'Yearly', child: Text('Yearly')),
-                  DropdownMenuItem(value: 'Weekly', child: Text('Weekly')),
-                ],
-                onChanged: (v) => setState(() => _selectedCycle = v!),
-                decoration: const InputDecoration(labelText: 'Cycle'),
-              ),
-              const SizedBox(height: 12),
-
-              // Category with autocomplete
-              Autocomplete<String>(
-                optionsBuilder: (TextEditingValue textEditingValue) {
-                  if (textEditingValue.text.isEmpty) {
-                    return _categoryOptions;
-                  }
-                  return _categoryOptions.where(
-                    (option) => option.toLowerCase().contains(
-                          textEditingValue.text.toLowerCase(),
-                        ),
-                  );
-                },
-                fieldViewBuilder: (context, textEditingController, focusNode,
-                    onEditingComplete) {
-                  // ✅ Bind our controller once, don’t overwrite text every rebuild
-                  if (_categoryController.text.isEmpty) {
-                    _categoryController.text = textEditingController.text;
-                  }
-
-                  // When the user types, update _categoryController in sync
-                  textEditingController.addListener(() {
-                    _categoryController.text = textEditingController.text;
-                  });
-
-                  return TextField(
-                    controller: textEditingController,
-                    focusNode: focusNode,
-                    decoration: const InputDecoration(
-                      labelText: 'Category (e.g. Entertainment, Tools, Cloud)',
-                    ),
-                  );
-                },
-                onSelected: (String selection) {
-                  _categoryController.text = selection;
-                },
-              ),
-
-              const SizedBox(height: 12),
-
-              // Renewal date picker
-              InkWell(
-                onTap: _pickDate,
-                borderRadius: BorderRadius.circular(8),
-                child: InputDecorator(
-                  decoration: const InputDecoration(labelText: 'Renewal Date'),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        _selectedDate.toLocal().toString().split(' ')[0],
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                      const Icon(Icons.calendar_today, size: 18),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              // Notes
-              TextFormField(
-                controller: _notesController,
-                maxLines: 2,
-                decoration:
-                    const InputDecoration(labelText: 'Notes (optional)'),
-              ),
-              const SizedBox(height: 20),
-
-              // Save button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  icon: _isSaving
-                      ? const SizedBox(
-                          height: 18,
-                          width: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.check),
-                  label: Text(_isSaving ? 'Saving...' : 'Save Subscription'),
-                  onPressed: _isSaving ? null : _save,
-                ),
-              ),
-              const SizedBox(height: 20),
             ],
+            border: Border.all(color: Colors.white.withOpacity(0.3), width: 1),
+          ),
+          child: Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+              left: 20,
+              right: 20,
+              top: 28,
+            ),
+            child: SingleChildScrollView(
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      height: 5,
+                      width: 60,
+                      decoration: BoxDecoration(
+                        color: Colors.teal.withOpacity(0.4),
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Add Subscription',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // --- Service Name
+                    TextFormField(
+                      controller: _nameController,
+                      decoration: InputDecoration(
+                        labelText: 'Service Name',
+                        prefixIcon: const Icon(Icons.subscriptions_outlined),
+                        border: inputBorder,
+                        enabledBorder: inputBorder,
+                        focusedBorder: inputBorder.copyWith(
+                          borderSide: const BorderSide(color: Colors.teal),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white.withOpacity(0.8),
+                      ),
+                      validator: (v) =>
+                          v == null || v.isEmpty ? 'Enter service name' : null,
+                    ),
+                    const SizedBox(height: 16),
+
+                    // --- Price
+                    TextFormField(
+                      controller: _priceController,
+                      decoration: InputDecoration(
+                        labelText: 'Price (¥)',
+                        prefixIcon: const Icon(Icons.payments_outlined),
+                        border: inputBorder,
+                        enabledBorder: inputBorder,
+                        focusedBorder: inputBorder.copyWith(
+                          borderSide: const BorderSide(color: Colors.teal),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white.withOpacity(0.8),
+                      ),
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      validator: (v) =>
+                          v == null || v.isEmpty ? 'Enter price' : null,
+                    ),
+                    const SizedBox(height: 16),
+
+                    // --- Cycle Dropdown
+                    DropdownButtonFormField<String>(
+                      value: _selectedCycle,
+                      items: const [
+                        DropdownMenuItem(
+                            value: 'Monthly', child: Text('Monthly')),
+                        DropdownMenuItem(
+                            value: 'Yearly', child: Text('Yearly')),
+                        DropdownMenuItem(
+                            value: 'Weekly', child: Text('Weekly')),
+                      ],
+                      onChanged: (v) => setState(() => _selectedCycle = v!),
+                      decoration: InputDecoration(
+                        labelText: 'Billing Cycle',
+                        prefixIcon: const Icon(Icons.repeat_outlined),
+                        border: inputBorder,
+                        enabledBorder: inputBorder,
+                        filled: true,
+                        fillColor: Colors.white.withOpacity(0.8),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // --- Category (Autocomplete)
+                    Autocomplete<String>(
+                      optionsBuilder: (TextEditingValue textEditingValue) {
+                        if (textEditingValue.text.isEmpty) {
+                          return _categoryOptions;
+                        }
+                        return _categoryOptions.where((option) => option
+                            .toLowerCase()
+                            .contains(textEditingValue.text.toLowerCase()));
+                      },
+                      fieldViewBuilder:
+                          (context, textEditingController, focusNode, _) {
+                        textEditingController.addListener(() {
+                          _categoryController.text = textEditingController.text;
+                        });
+                        return TextField(
+                          controller: textEditingController,
+                          focusNode: focusNode,
+                          decoration: InputDecoration(
+                            labelText: 'Category',
+                            prefixIcon: const Icon(Icons.category_outlined),
+                            border: inputBorder,
+                            enabledBorder: inputBorder,
+                            focusedBorder: inputBorder.copyWith(
+                              borderSide: const BorderSide(color: Colors.teal),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white.withOpacity(0.8),
+                          ),
+                        );
+                      },
+                      onSelected: (String selection) {
+                        _categoryController.text = selection;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+
+                    // --- Renewal Date
+                    InkWell(
+                      onTap: _pickDate,
+                      borderRadius: BorderRadius.circular(14),
+                      child: InputDecorator(
+                        decoration: InputDecoration(
+                          labelText: 'Renewal Date',
+                          prefixIcon: const Icon(Icons.calendar_today_outlined),
+                          border: inputBorder,
+                          enabledBorder: inputBorder,
+                          filled: true,
+                          fillColor: Colors.white.withOpacity(0.8),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              _selectedDate
+                                  .toLocal()
+                                  .toString()
+                                  .split(' ')
+                                  .first,
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                            const Icon(Icons.keyboard_arrow_down_rounded,
+                                color: Colors.teal),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // --- Notes
+                    TextFormField(
+                      controller: _notesController,
+                      maxLines: 3,
+                      decoration: InputDecoration(
+                        labelText: 'Notes (optional)',
+                        prefixIcon: const Icon(Icons.note_alt_outlined),
+                        border: inputBorder,
+                        enabledBorder: inputBorder,
+                        focusedBorder: inputBorder.copyWith(
+                          borderSide: const BorderSide(color: Colors.teal),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white.withOpacity(0.8),
+                      ),
+                    ),
+                    const SizedBox(height: 28),
+
+                    // --- Save Button
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      width: double.infinity,
+                      height: 52,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        gradient: LinearGradient(
+                          colors: _isSaving
+                              ? [Colors.teal.shade300, Colors.teal.shade400]
+                              : [Colors.teal.shade400, Colors.teal.shade600],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.teal.withOpacity(0.3),
+                            blurRadius: 12,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      child: ElevatedButton.icon(
+                        icon: _isSaving
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Icon(Icons.check_rounded,
+                                color: Colors.white),
+                        label: Text(
+                          _isSaving ? 'Saving...' : 'Save Subscription',
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                              color: Colors.white),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        onPressed: _isSaving ? null : _save,
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
       ),

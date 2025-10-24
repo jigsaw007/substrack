@@ -6,13 +6,37 @@ class SectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(12),
-      padding: const EdgeInsets.all(16),
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeInOut,
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface.withOpacity(0.7),
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(blurRadius: 16, color: Colors.black12)],
+        borderRadius: BorderRadius.circular(20),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Theme.of(context).colorScheme.surface.withOpacity(0.95),
+            Colors.white.withOpacity(0.9),
+          ],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.15),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+          BoxShadow(
+            color: Colors.white.withOpacity(0.6),
+            blurRadius: 6,
+            offset: const Offset(-2, -2),
+          ),
+        ],
+        border: Border.all(
+          color: Colors.grey.withOpacity(0.08),
+          width: 1.2,
+        ),
       ),
       child: child,
     );
